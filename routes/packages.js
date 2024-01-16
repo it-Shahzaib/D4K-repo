@@ -1,46 +1,45 @@
 const mongoose = require("mongoose");
 const express = require("express");
 const router = express.Router();
-const Order = require("../models/orders");
+const Package = require("../models/model");
 
 router.post("/", async (req, res) => {
   try {
     const { shortBarcode, barcode } = req.body;
 
-    const result = await Order.aggregate([
+    const result = await Package.aggregate([
       {
-        $lookup: {
-          from: "packages",
-          localField: "orderNumber",
-          foreignField: "orderNumber",
-          as: "packageInfo",
+        $match: {
+          $or: [{ shortBarcode: shortBarcode }, { barcode: barcode }],
         },
       },
       {
-        $unwind: "$packageInfo",
+        $lookup: {
+          from: "orders",
+          localField: "orderNumber",
+          foreignField: "orderNumber",
+          as: "orderInfo",
+        },
       },
       {
-        $match: {
-          $or: [
-            { "packageInfo.shortBarcode": shortBarcode },
-            { "packageInfo.barcode": barcode },
-          ],
+        $unwind: {
+          path: "$orderInfo",
+          preserveNullAndEmptyArrays: true,
         },
       },
       {
         $project: {
           packageInfo: {
-            orderNumber: "$packageInfo.orderNumber",
-            positionNumber: "$packageInfo.positionNumber",
-            item: "$packageInfo.item",
-            packageName: "$packageInfo.packageName",
+            orderNumber: "$orderNumber",
+            positionNumber: "$positionNumber",
+            item: "$item",
+            packageName: "$packageName",
           },
           orderInfo: {
-            orderNumber: "$orderNumber",
-            orderName: "$orderName",
+            orderName: "$orderInfo.orderName",
             stagingArea: "$packageInfo.stagingArea",
-            totalVolume: "$totalVolume",
-            totalWeight: "$totalWeight",
+            totalVolume: "$orderInfo.totalVolume",
+            totalWeight: "$orderInfo.totalWeight",
           },
           _id: 0,
         },
