@@ -32,4 +32,45 @@ const getContainer = async (req, res, next) => {
   }
 };
 
-module.exports = getContainer;
+const getOrderPackagesCount = async (req, res, next) => {
+  const containerId = req.params.id;
+  console.log(containerId);
+
+  try {
+    const result = await Container.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(containerId),
+        },
+      },
+      {
+        $lookup: {
+          from: "orders",
+          localField: "mainOrderIds",
+          foreignField: "mainOrderId",
+          as: "orders",
+        },
+      },
+      {
+        $unwind: "$orders",
+      },
+      {
+        $group: {
+          _id: "$orders.manufacture",
+          totalPackages: {
+            $sum: "$orders.totalPackages",
+          },
+        },
+      },
+    ]);
+    res.status(200).send(result);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+module.exports = {
+  getContainer,
+  getOrderPackagesCount,
+};
