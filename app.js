@@ -25,8 +25,10 @@ app.use("/getPackages", Package);
 // Route handler for GET request to get container info
 app.use("/getContainerInfo", Container);
 
-const PORT = process.env.PORT || 5000; // Port number
+// Route handler for GET request to get packages count
+app.use("/getPackagesCount", Container);
 
+const PORT = process.env.PORT || 5000; // Port number
 app.listen(PORT, () => {
   console.log(`Server is now listening on port http:localhost:${PORT}`);
 });
