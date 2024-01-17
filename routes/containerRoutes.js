@@ -1,8 +1,13 @@
 const express = require("express");
 const router = express.Router();
 
-const getContainerController = require("../controllers/containerController");
+const {
+  getContainer,
+  getOrderPackagesCount,
+} = require("../controllers/containerController");
 
-router.get("/:id", getContainerController);
+router.get("/:id", getContainer);
+
+router.get("/packagesCount/:id", getOrderPackagesCount);
 
 module.exports = router;
