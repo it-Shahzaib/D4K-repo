@@ -6,7 +6,7 @@ const {
   getOrderPackagesCount,
 } = require("../controllers/containerController");
 
-router.get("/:id", getContainer);
+router.get("/getContainer/:id", getContainer);
 
 router.get("/packagesCount/:id", getOrderPackagesCount);
 
